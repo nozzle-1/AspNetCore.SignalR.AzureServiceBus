@@ -19,8 +19,8 @@ namespace AspNetCore.SignalR.AzureServiceBus.IntegrationTests
         public async Task Clients_Receive_Messages_Sent_From_Other_Server_Instance()
         {
             TestServer
-                server1 = CreateServer(),
-                server2 = CreateServer();
+                server1 = CreateServer(5321),
+                server2 = CreateServer(5322);
 
             HubConnection
                 client1 = CreateClient(server1),
@@ -66,9 +66,13 @@ namespace AspNetCore.SignalR.AzureServiceBus.IntegrationTests
             messageReceivedByClient2.Should().Be(messageFromClient1);
         }
 
-        private TestServer CreateServer()
+        private TestServer CreateServer(int port)
         {
             var builder = new WebHostBuilder()
+                .ConfigureKestrel(x =>
+                {
+                    x.ListenAnyIP(port);
+                })
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration(config => config.AddUserSecrets<Startup>().AddEnvironmentVariables())
                 .ConfigureLogging(logging => logging.AddDebug());

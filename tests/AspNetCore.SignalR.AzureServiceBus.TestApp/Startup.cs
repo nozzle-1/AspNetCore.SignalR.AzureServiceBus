@@ -19,7 +19,7 @@ namespace AspNetCore.SignalR.AzureServiceBus.TestApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
 
             services.AddSignalR()
                 .AddAzureServiceBus(options => Configuration.Bind("SignalRAzureServiceBus", options));
@@ -40,13 +40,13 @@ namespace AspNetCore.SignalR.AzureServiceBus.TestApp
 
             app.UseHttpsRedirection();
 
-            app.UseSignalR(builder =>
+            app.UseRouting();
+            app.UseEndpoints(x =>
             {
-                builder.MapHub<NotificationHub>("/hub/notifications");
-                builder.MapHub<ChatroomHub>("/hub/chat");
+                x.MapControllers();
+                x.MapHub<ChatroomHub>("/hub/chat");
+                x.MapHub<NotificationHub>("/hub/notification");
             });
-
-            app.UseMvc();
         }
     }
 }
